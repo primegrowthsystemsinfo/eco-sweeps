@@ -305,6 +305,10 @@ form .btn{justify-self:start;margin-top:6px}
 .sent p{color:var(--on-deep-2);margin-top:10px}
 form.ok>*{display:none}
 form.ok .sent{display:block;animation:open .7s var(--ease)}
+.form-err{display:none;color:#f0c9b8;font-size:.95rem}
+.form-err a{color:var(--mint);font-weight:600}
+form.err .form-err{display:block}
+form button[disabled]{opacity:.7;cursor:progress}
 @media (max-width:860px){.quote .split{grid-template-columns:1fr}}
 
 /* footer */
@@ -589,7 +593,13 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <h2 class="reveal">Tell us about your space.</h2>
         <p class="lede reveal">Or call <a href="tel:+17755012101">(775) 501-2101</a>. We're open until 8 PM.</p>
       </div>
-      <form id="form" class="reveal" novalidate>
+      <form id="form" class="reveal" action="https://api.web3forms.com/submit" method="POST" novalidate>
+        <!-- Web3Forms access key: created at web3forms.com for ojedajosefina75@yahoo.com -->
+        <input type="hidden" name="access_key" value="348abdee-1ce3-45e2-ada0-d82286d2e949">
+        <input type="hidden" name="subject" value="New quote request from the Eco Sweeps website">
+        <input type="hidden" name="from_name" value="Eco Sweeps website">
+        <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+        <input type="hidden" name="redirect" value="https://ecosweepsivo.primegrowthsystems.com/#quote">
         <div class="row2">
           <label>Name<input name="name" autocomplete="name" required></label>
           <label>Phone<input name="phone" type="tel" autocomplete="tel" required></label>
@@ -601,6 +611,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         </label>
         <label>Anything we should know?<textarea name="notes" placeholder="Example: 3 bedroom house, two dogs, every other week"></textarea></label>
         <button class="btn btn-primary" type="submit">Send my request</button>
+        <p class="form-err" role="alert">That didn't send. Please call <a href="tel:+17755012101">(775) 501-2101</a> instead.</p>
         <div class="sent" role="status"><h3>Thanks.</h3><p>We'll call you back soon.</p></div>
       </form>
     </div>
@@ -864,14 +875,27 @@ new IntersectionObserver(es => { baOn = es[0].isIntersecting; baScroll(); }).obs
 addEventListener('scroll', baScroll, { passive: true });
 addEventListener('resize', baSize); baSize();
 
-/* ---------- form (demo: JS-only success state) ---------- */
-const form = $('#form');
-form.addEventListener('submit', e => {
+/* ---------- form: Web3Forms emails each request to the owner ---------- */
+const form = $('#form'), sendBtn = form.querySelector('button[type=submit]');
+form.addEventListener('submit', async e => {
   e.preventDefault();
   const bad = [...form.querySelectorAll('[required]')].find(i => !i.value.trim());
   if (bad) { bad.focus(); bad.style.borderColor = '#e8b4a0'; return; }
-  form.classList.add('ok');
-  form.querySelector('.sent').setAttribute('tabindex', '-1'); form.querySelector('.sent').focus();
+  form.classList.remove('err');
+  sendBtn.disabled = true; sendBtn.textContent = 'Sending...';
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST', headers: { Accept: 'application/json' }, body: new FormData(form)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || String(data.success) === 'false') throw new Error(data.message || res.status);
+    form.classList.add('ok');
+    form.querySelector('.sent').setAttribute('tabindex', '-1'); form.querySelector('.sent').focus();
+  } catch {
+    form.classList.add('err');
+  } finally {
+    sendBtn.disabled = false; sendBtn.textContent = 'Send my request';
+  }
 });
 
 /* ---------- reduced motion, live in both directions ---------- */
