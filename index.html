@@ -593,13 +593,13 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <h2 class="reveal">Tell us about your space.</h2>
         <p class="lede reveal">Or call <a href="tel:+17755012101">(775) 501-2101</a>. We're open until 8 PM.</p>
       </div>
-      <form id="form" class="reveal" action="https://api.web3forms.com/submit" method="POST" novalidate>
-        <!-- Web3Forms access key: created at web3forms.com for ojedajosefina75@yahoo.com -->
-        <input type="hidden" name="access_key" value="348abdee-1ce3-45e2-ada0-d82286d2e949">
-        <input type="hidden" name="subject" value="New quote request from the Eco Sweeps website">
-        <input type="hidden" name="from_name" value="Eco Sweeps website">
-        <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
-        <input type="hidden" name="redirect" value="https://ecosweepsivo.primegrowthsystems.com/#quote">
+      <form id="form" class="reveal" action="https://formsubmit.co/ojedajosefina75@yahoo.com" method="POST" novalidate>
+        <!-- FormSubmit: the first request sends an activation email to this inbox; delivery starts once it is clicked -->
+        <input type="hidden" name="_subject" value="New quote request from the Eco Sweeps website">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+        <input type="hidden" name="_next" value="https://ecosweepsivo.primegrowthsystems.com/#quote">
         <div class="row2">
           <label>Name<input name="name" autocomplete="name" required></label>
           <label>Phone<input name="phone" type="tel" autocomplete="tel" required></label>
@@ -875,7 +875,7 @@ new IntersectionObserver(es => { baOn = es[0].isIntersecting; baScroll(); }).obs
 addEventListener('scroll', baScroll, { passive: true });
 addEventListener('resize', baSize); baSize();
 
-/* ---------- form: Web3Forms emails each request to the owner ---------- */
+/* ---------- form: FormSubmit emails each request to the owner ---------- */
 const form = $('#form'), sendBtn = form.querySelector('button[type=submit]');
 form.addEventListener('submit', async e => {
   e.preventDefault();
@@ -884,7 +884,7 @@ form.addEventListener('submit', async e => {
   form.classList.remove('err');
   sendBtn.disabled = true; sendBtn.textContent = 'Sending...';
   try {
-    const res = await fetch(form.action, {
+    const res = await fetch(form.action.replace('formsubmit.co/', 'formsubmit.co/ajax/'), {
       method: 'POST', headers: { Accept: 'application/json' }, body: new FormData(form)
     });
     const data = await res.json().catch(() => ({}));
